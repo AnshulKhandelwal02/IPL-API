@@ -21,6 +21,7 @@ jobs:
         dotnet-version: '3.1.102'
 
     - name: Build with dotnet
+      working-directory: './DataFeed'
       run: dotnet build --configuration Release
 
     - name: dotnet publish
