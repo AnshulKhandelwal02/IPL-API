@@ -27,6 +27,9 @@ namespace DataFeed
         public void ConfigureServices(IServiceCollection services)
         {
             services.AddTransient<IMagicService, MagicService>();
+
+            ConfigureCors(services);
+
             services.AddControllers();
         }
 
@@ -38,6 +41,8 @@ namespace DataFeed
                 app.UseDeveloperExceptionPage();
             }
 
+            app.UseCors("AllowCors");
+
             app.UseHttpsRedirection();
 
             app.UseRouting();
@@ -47,6 +52,23 @@ namespace DataFeed
             app.UseEndpoints(endpoints =>
             {
                 endpoints.MapControllers();
+            });
+        }
+        private void ConfigureCors(IServiceCollection services)
+        {
+            // Configure Cross Origin Resource Sharing
+            services.AddCors(options =>
+            {
+                options.AddPolicy("AllowCors", builder => builder
+                    .AllowAnyOrigin()
+                    .AllowAnyHeader()
+                    .AllowAnyMethod());
+            });
+
+            services.Configure<MvcOptions>(options =>
+            {
+                options.Filters.Add(new RequireHttpsAttribute());
+                // options.Filters.Add(new CorsAuthorizationFilterFactory("AllowCors"));
             });
         }
     }

@@ -28,15 +28,19 @@ namespace DataFeed.Models
     public class LeagueSummary
     {
         public long TeamId { get; set; }
+        public long Rank { get; set; }
         public string TeamName { get; set; }
         public decimal Points { get; set; }
-        public long TransfersDone { get; set; }
+        public long Transfers { get; set; }
         public string Captain { get; set; }
         public string ViceCaptain { get; set; }
-        public long Rank { get; set; }
         public decimal DayPoints { get; set; }
         public long DayTransfers { get; set; }
         public long DayPointsMatchNumber { get; set; }
         public long DayTransfersMatchNumber { get; set; }
+        public decimal PointsPerTransfer { get; set; }
+        public decimal YesterdayPoints { get; set; }
+        public long YesterdayTransfers { get; set; }
     }
+
 }

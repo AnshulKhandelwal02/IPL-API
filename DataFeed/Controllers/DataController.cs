@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Data;
 using System.Linq;
 using System.Net.NetworkInformation;
 using System.Threading.Tasks;
@@ -27,7 +28,7 @@ namespace DataFeed.Controllers
         [Route("summary")]
         public async Task<ResponseEnvelope> GetSummary()
         {
-
+            var response = new DataResponse();
             RequestData request = new RequestData
             {
                 Headers = new Dictionary<string, string>
@@ -49,16 +50,35 @@ namespace DataFeed.Controllers
 
             var teamDataList = _magicService.GetTransfers(request, leaderboard).Result;
 
+            // var temp = _magicService.PivotData(teamDataList);
+
             var analyzedResult = _magicService.AnalyzeData(teamDataList);
 
             var summarizedData = _magicService.SummarizeData(analyzedResult);
 
-            return ResponseEnvelope.Success(summarizedData);
+            summarizedData.ForEach(x => x.PointsPerTransfer = Math.Round(x.Points / x.Transfers,2));
+
+            response.SummaryData = summarizedData;
+            response.ColumnsList = summarizedData.ToDataTable().Columns.Cast<DataColumn>()
+                .Select(x => char.ToLowerInvariant(x.ColumnName[0]) + x.ColumnName.Substring(1))
+                .ToList();
+
+            response.ColumnsList.Remove("teamId");
+            response.ColumnsList.Remove("dayPointsMatchNumber");
+            response.ColumnsList.Remove("dayTransfersMatchNumber");
+            response.ColumnsList.Remove("captain");
+            response.ColumnsList.Remove("viceCaptain");
+            //response.ColumnsList.Remove("yesterdayPoints");
+            //response.ColumnsList.Remove("yesterdayTransfers");
+
+            return ResponseEnvelope.Success(response);
         }
 
         [Route("gokuldham-summary")]
         public async Task<ResponseEnvelope> GetSummaryForGokuldham()
         {
+
+            var response = new DataResponse();
             RequestData request = new RequestData
             {
                 Headers = new Dictionary<string, string>
@@ -82,13 +102,30 @@ namespace DataFeed.Controllers
 
             var analyzedResult = _magicService.AnalyzeData(teamDataList);
 
-            return ResponseEnvelope.Success(analyzedResult);
+            analyzedResult.ForEach(x => x.PointsPerTransfer = Math.Round(x.Points / x.Transfers, 2));
+
+            response.SummaryData = analyzedResult;
+            response.ColumnsList = analyzedResult.ToDataTable().Columns.Cast<DataColumn>()
+                .Select(x => char.ToLowerInvariant(x.ColumnName[0]) + x.ColumnName.Substring(1))
+                .ToList();
+
+            response.ColumnsList.Remove("teamId");
+            response.ColumnsList.Remove("dayPointsMatchNumber");
+            response.ColumnsList.Remove("dayTransfersMatchNumber");
+            response.ColumnsList.Remove("captain");
+            response.ColumnsList.Remove("viceCaptain");
+            //response.ColumnsList.Remove("yesterdayPoints");
+            //response.ColumnsList.Remove("yesterdayTransfers");
+
+            return ResponseEnvelope.Success(response);
+
         }
 
         [Route("mahasangram-summary")]
         public async Task<ResponseEnvelope> GetSummaryForMahasangram()
         {
 
+            var response = new DataResponse();
             RequestData request = new RequestData
             {
                 Headers = new Dictionary<string, string>
@@ -112,7 +149,22 @@ namespace DataFeed.Controllers
 
             var analyzedResult = _magicService.AnalyzeData(teamDataList);
 
-            return ResponseEnvelope.Success(analyzedResult);
+            analyzedResult.ForEach(x => x.PointsPerTransfer = Math.Round(x.Points / x.Transfers, 2));
+
+            response.SummaryData = analyzedResult;
+            response.ColumnsList = analyzedResult.ToDataTable().Columns.Cast<DataColumn>()
+                .Select(x => char.ToLowerInvariant(x.ColumnName[0]) + x.ColumnName.Substring(1))
+                .ToList();
+
+            response.ColumnsList.Remove("teamId");
+            response.ColumnsList.Remove("dayPointsMatchNumber");
+            response.ColumnsList.Remove("dayTransfersMatchNumber");
+            response.ColumnsList.Remove("captain");
+            response.ColumnsList.Remove("viceCaptain");
+            //response.ColumnsList.Remove("yesterdayPoints");
+            //response.ColumnsList.Remove("yesterdayTransfers");
+
+            return ResponseEnvelope.Success(response);
         }
 
     }
