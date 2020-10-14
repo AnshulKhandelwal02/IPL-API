@@ -120,11 +120,11 @@ namespace DataFeed.Services
 
         public List<LeagueSummary> AnalyzeData(List<TeamDataList> rawData)
         {
-            DateTime halfway = new DateTime(2020, 10, 12);
-            DateTime todayDate = DateTime.Today.Date;
+            var halfway = new DateTime(2020, 10, 12);
+            var todayDate = DateTime.Today.Date;
 
             // halfway matchday = 24
-            long todayMatchday = 24 + Convert.ToInt64((todayDate - halfway).TotalDays);
+            var todayMatchday = 24 + Convert.ToInt64((todayDate - halfway).TotalDays);
 
             List<LeagueSummary> result = new List<LeagueSummary>();
             foreach (var data in rawData)
@@ -204,7 +204,9 @@ namespace DataFeed.Services
                 Points = x.Points,
                 Transfers = x.Transfers,
                 DayTransfers = x.DayTransfers,
-                DayPoints = x.DayPoints
+                DayPoints = x.DayPoints,
+                YesterdayTransfers = x.YesterdayTransfers,
+                YesterdayPoints = x.YesterdayPoints
             }).ToList();
 
             //return newResult;
@@ -223,7 +225,10 @@ namespace DataFeed.Services
                 DayTransfers = Team1.DayTransfers + Team2.DayTransfers,
 
                 DayPointsMatchNumber = Team1.DayPointsMatchNumber,
-                DayTransfersMatchNumber = Team1.DayTransfersMatchNumber
+                DayTransfersMatchNumber = Team1.DayTransfersMatchNumber,
+
+                YesterdayTransfers = Team1.YesterdayTransfers + Team2.YesterdayTransfers,
+                YesterdayPoints = Team1.YesterdayPoints + Team2.YesterdayPoints
             };
 
             return item;

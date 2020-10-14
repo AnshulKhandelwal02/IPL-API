@@ -34,11 +34,11 @@ namespace DataFeed.Models
         public long Transfers { get; set; }
         public string Captain { get; set; }
         public string ViceCaptain { get; set; }
+        public decimal PointsPerTransfer { get; set; }
         public decimal DayPoints { get; set; }
         public long DayTransfers { get; set; }
         public long DayPointsMatchNumber { get; set; }
         public long DayTransfersMatchNumber { get; set; }
-        public decimal PointsPerTransfer { get; set; }
         public decimal YesterdayPoints { get; set; }
         public long YesterdayTransfers { get; set; }
     }

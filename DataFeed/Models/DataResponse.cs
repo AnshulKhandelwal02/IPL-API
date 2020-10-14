@@ -10,5 +10,7 @@ namespace DataFeed.Models
         public List<string> ColumnsList { get; set; } = new List<string>();
 
         public List<LeagueSummary> SummaryData { get; set; }
+
+        public long MatchDay { get; set; }
     }
 }

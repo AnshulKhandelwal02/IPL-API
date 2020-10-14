@@ -29,7 +29,7 @@ namespace DataFeed.Controllers
         public async Task<ResponseEnvelope> GetSummary()
         {
             var response = new DataResponse();
-            RequestData request = new RequestData
+            var request = new RequestData
             {
                 Headers = new Dictionary<string, string>
                 {
@@ -59,6 +59,7 @@ namespace DataFeed.Controllers
             summarizedData.ForEach(x => x.PointsPerTransfer = Math.Round(x.Points / x.Transfers,2));
 
             response.SummaryData = summarizedData;
+            response.MatchDay = GetTodayMatchday();
             response.ColumnsList = summarizedData.ToDataTable().Columns.Cast<DataColumn>()
                 .Select(x => char.ToLowerInvariant(x.ColumnName[0]) + x.ColumnName.Substring(1))
                 .ToList();
@@ -77,7 +78,6 @@ namespace DataFeed.Controllers
         [Route("gokuldham-summary")]
         public async Task<ResponseEnvelope> GetSummaryForGokuldham()
         {
-
             var response = new DataResponse();
             RequestData request = new RequestData
             {
@@ -105,6 +105,7 @@ namespace DataFeed.Controllers
             analyzedResult.ForEach(x => x.PointsPerTransfer = Math.Round(x.Points / x.Transfers, 2));
 
             response.SummaryData = analyzedResult;
+            response.MatchDay = GetTodayMatchday();
             response.ColumnsList = analyzedResult.ToDataTable().Columns.Cast<DataColumn>()
                 .Select(x => char.ToLowerInvariant(x.ColumnName[0]) + x.ColumnName.Substring(1))
                 .ToList();
@@ -152,6 +153,7 @@ namespace DataFeed.Controllers
             analyzedResult.ForEach(x => x.PointsPerTransfer = Math.Round(x.Points / x.Transfers, 2));
 
             response.SummaryData = analyzedResult;
+            response.MatchDay = GetTodayMatchday();
             response.ColumnsList = analyzedResult.ToDataTable().Columns.Cast<DataColumn>()
                 .Select(x => char.ToLowerInvariant(x.ColumnName[0]) + x.ColumnName.Substring(1))
                 .ToList();
@@ -165,6 +167,20 @@ namespace DataFeed.Controllers
             //response.ColumnsList.Remove("yesterdayTransfers");
 
             return ResponseEnvelope.Success(response);
+        }
+
+        public long GetTodayMatchday()
+        {
+
+            var response = new DataResponse();
+
+            var halfway = new DateTime(2020, 10, 12);
+            var todayDate = DateTime.Today.Date;
+
+            // halfway matchday = 24
+            var todayMatchday = 24 + Convert.ToInt64((todayDate - halfway).TotalDays);
+
+            return todayMatchday;
         }
 
     }
