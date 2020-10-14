@@ -156,10 +156,15 @@ namespace DataFeed.Services
 
                     YesterdayTransfers = data.Teams.Exists(x => x.Gdid == todayMatchday - 1)
                         ? data.Teams.FirstOrDefault(x => x.Gdid == todayMatchday - 1).SubsUsed
-                        : 0
-                    //Captain = data.Teams.FirstOrDefault(x => x.Gdid == (data.Teams.Max(y => y.Gdid)))?.CaptainName,
-                    //ViceCaptain = data.Teams.FirstOrDefault(x => x.Gdid == (data.Teams.Max(y => y.Gdid)))
-                    //    ?.ViceCaptainName,
+                        : 0,
+
+                    Captain = data.Teams.Exists(x => x.Gdid == todayMatchday)
+                        ? data.Teams.FirstOrDefault(x => x.Gdid == todayMatchday).CaptainName
+                        : "NOT UPDATED",
+
+                    ViceCaptain = data.Teams.Exists(x => x.Gdid == todayMatchday)
+                        ? data.Teams.FirstOrDefault(x => x.Gdid == todayMatchday).ViceCaptainName
+                        : "NOT UPDATED"
 
                     //DayPoints = Convert.ToDecimal(data.Gdpts.FirstOrDefault(x => x.Gdid == (data.Gdpts.Max(y => y.Gdid)))?.Gdpts),
                     //DayTransfers = data.Teams.FirstOrDefault(x => x.Gdid == data.Teams.Max(y => y.Gdid)).SubsUsed,
@@ -211,7 +216,9 @@ namespace DataFeed.Services
                 DayTransfers = x.DayTransfers,
                 DayPoints = x.DayPoints,
                 YesterdayTransfers = x.YesterdayTransfers,
-                YesterdayPoints = x.YesterdayPoints
+                YesterdayPoints = x.YesterdayPoints,
+                Captain = x.Captain,
+                ViceCaptain = x.ViceCaptain
             }).ToList();
 
             //return newResult;

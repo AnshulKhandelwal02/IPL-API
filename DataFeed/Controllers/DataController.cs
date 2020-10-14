@@ -113,8 +113,8 @@ namespace DataFeed.Controllers
             response.ColumnsList.Remove("teamId");
             response.ColumnsList.Remove("dayPointsMatchNumber");
             response.ColumnsList.Remove("dayTransfersMatchNumber");
-            response.ColumnsList.Remove("captain");
-            response.ColumnsList.Remove("viceCaptain");
+            //response.ColumnsList.Remove("captain");
+            //response.ColumnsList.Remove("viceCaptain");
             //response.ColumnsList.Remove("yesterdayPoints");
             //response.ColumnsList.Remove("yesterdayTransfers");
 
@@ -169,6 +169,53 @@ namespace DataFeed.Controllers
             return ResponseEnvelope.Success(response);
         }
 
+
+        [Route("mahasangram-summary-admin")]
+        public async Task<ResponseEnvelope> GetSummaryForMahasangramAdmin()
+        {
+
+            var response = new DataResponse();
+            RequestData request = new RequestData
+            {
+                Headers = new Dictionary<string, string>
+                {
+                    {
+                        "cookie",
+                        "dh_user_id=22e8c050-04b6-11eb-b538-2f689998b9eb; _ga=GA1.2.951161637.1600348938; __csrf=702ce218-de56-0080-d659-6b3295387394; G_ENABLED_IDPS=google; ajs_anonymous_id=%223f8637fa-14a3-42cb-960b-f8be90ab9a98%22; WZRK_G=49c0b0ba404a45f5a8dd7cd933b30fec; connect.sid=s%3AQaM4AUSjr-P5atfjvkhVI5tLYNZbO1Yz.5oXm0IH457HEqLSbGkPtxn3LW6T3enw82KzvshYNmso; PUBLIC_LEAGUE_BUSTER=20200917132719; d11partner=%7B%0A%20%20%22UserName%22%3A%20%22DREAMIPLAK11%22%2C%0A%20%20%22HasTeam%22%3A%201%2C%0A%20%20%22TeamName%22%3A%20%22DREAMIPLAK11%22%2C%0A%20%20%22FavTeamId%22%3A%20%221106%22%2C%0A%20%20%22SocialId%22%3A%20%2299731947%22%2C%0A%20%20%22GUID%22%3A%20%2255ad0698-f847-11ea-b8ff-023696af5d81%22%2C%0A%20%20%22ActiveTour%22%3A%20null%2C%0A%20%20%22IsTourActive%22%3A%200%2C%0A%20%20%22UserId%22%3A%20%22EF2DA77F1666588EBD%22%2C%0A%20%20%22TeamId%22%3A%20%22EF2DA77F1666588EBD%22%2C%0A%20%20%22ProfileURL%22%3A%20%22https%3A%2F%2Fwww.dream11.com%2Fpublic%2Fimgs%2Fleaderboard_default_image.png%22%2C%0A%20%20%22TeamName_Allow%22%3A%20%220%22%0A%7D; PRIVATE_LEAGUE_BUSTER=20200918092057; TEAM_BUSTER=20201009135509; autorefresh=20201010093326"
+                    },
+                    {"x-csrf", "702ce218-de56-0080-d659-6b3295387394"}
+                },
+                LeaderboardUrl =
+                    "https://fantasy.iplt20.com/season/services/user/contest/2150102/leaderboard?optType=1&gamedayId=21&phaseId=1&pageNo=1&topNo=100&pageChunk=100&pageOneChunk=100&minCount=33&leagueId=2150102",
+                TransferListUrl =
+                    "https://fantasy.iplt20.com/season/services/user/55ad0698-f847-11ea-b8ff-023696af5d81/lb-team/overall?optType=2&teamgamedayId=1&arrtourGamedayId={0}&phaseId=1&teamId={1}&SocialId={2}"
+
+            };
+
+            var leaderboard = _magicService.GetLeaderboard(request).Result;
+
+            var teamDataList = _magicService.GetTransfers(request, leaderboard).Result;
+
+            var analyzedResult = _magicService.AnalyzeData(teamDataList);
+
+            analyzedResult.ForEach(x => x.PointsPerTransfer = Math.Round(x.Points / x.Transfers, 2));
+
+            response.SummaryData = analyzedResult;
+            response.MatchDay = GetTodayMatchday();
+            response.ColumnsList = analyzedResult.ToDataTable().Columns.Cast<DataColumn>()
+                .Select(x => char.ToLowerInvariant(x.ColumnName[0]) + x.ColumnName.Substring(1))
+                .ToList();
+
+            response.ColumnsList.Remove("teamId");
+            response.ColumnsList.Remove("dayPointsMatchNumber");
+            response.ColumnsList.Remove("dayTransfersMatchNumber");
+            //response.ColumnsList.Remove("captain");
+            //response.ColumnsList.Remove("viceCaptain");
+            //response.ColumnsList.Remove("yesterdayPoints");
+            //response.ColumnsList.Remove("yesterdayTransfers");
+
+            return ResponseEnvelope.Success(response);
+        }
         public long GetTodayMatchday()
         {
 
