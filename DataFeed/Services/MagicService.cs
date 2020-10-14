@@ -61,6 +61,11 @@ namespace DataFeed.Services
                         if (item?.Data?.Value?.Gdpts != null)
                         {
                             teamDataList.Gdpts.AddRange(item.Data.Value.Gdpts);
+                            //teamDataList.Ovpts = item.Data.Value.Ovpts;
+                        }
+
+                        if (item?.Data?.Value?.Teams != null)
+                        {
                             teamDataList.Teams.AddRange(item.Data.Value.Teams);
                             //teamDataList.Ovpts = item.Data.Value.Ovpts;
                         }
