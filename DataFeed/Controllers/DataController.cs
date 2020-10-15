@@ -35,7 +35,9 @@ namespace DataFeed.Controllers
 
             var teamDataList = _magicService.GetTransfers(request, leaderboard).Result;
 
-            var analyzedResult = _magicService.AnalyzeData(teamDataList);
+            var playerList = _magicService.GetPlayerList(request).Result;
+
+            var analyzedResult = _magicService.AnalyzeDataAdmin(teamDataList, playerList);
 
             var summarizedData = _magicService.SummarizeData(analyzedResult);
 
@@ -77,7 +79,9 @@ namespace DataFeed.Controllers
 
             var teamDataList = _magicService.GetTransfers(request, leaderboard).Result;
 
-            var analyzedResult = _magicService.AnalyzeData(teamDataList);
+            var playerList = _magicService.GetPlayerList(request).Result;
+
+            var analyzedResult = _magicService.AnalyzeDataAdmin(teamDataList, playerList);
 
             analyzedResult.ForEach(x => x.PointsPerTransfer = Math.Round(x.Points / x.Transfers, 2));
 
@@ -119,7 +123,9 @@ namespace DataFeed.Controllers
 
             var teamDataList = _magicService.GetTransfers(request, leaderboard).Result;
 
-            var analyzedResult = _magicService.AnalyzeData(teamDataList);
+            var playerList = _magicService.GetPlayerList(request).Result;
+
+            var analyzedResult = _magicService.AnalyzeDataAdmin(teamDataList, playerList);
 
             analyzedResult.ForEach(x => x.PointsPerTransfer = Math.Round(x.Points / x.Transfers, 2));
 
@@ -163,7 +169,7 @@ namespace DataFeed.Controllers
 
             var playerList = _magicService.GetPlayerList(request).Result;
 
-            var analyzedResult = _magicService.AnalyzeDataAdmin(teamDataList, playerList);
+            var analyzedResult = _magicService.AnalyzeDataAdminWithPlayers(teamDataList, playerList);
 
             analyzedResult.ForEach(x => x.PointsPerTransfer = Math.Round(x.Points / x.Transfers, 2));
 
@@ -197,7 +203,7 @@ namespace DataFeed.Controllers
 
             var playerList = _magicService.GetPlayerList(request).Result;
 
-            var analyzedResult = _magicService.AnalyzeDataAdmin(teamDataList, playerList);
+            var analyzedResult = _magicService.AnalyzeDataAdminWithPlayers(teamDataList, playerList);
 
             analyzedResult.ForEach(x => x.PointsPerTransfer = Math.Round(x.Points / x.Transfers, 2));
 

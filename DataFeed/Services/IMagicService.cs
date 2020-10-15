@@ -12,6 +12,7 @@ namespace DataFeed.Services
         Task<Leaderboard> GetLeaderboard(RequestData request);
         List<LeagueSummary> AnalyzeData(List<TeamDataList> rawData);
         List<LeagueSummary> AnalyzeDataAdmin(List<TeamDataList> rawData, List<PlayerElement> playersData);
+        List<LeagueSummary> AnalyzeDataAdminWithPlayers(List<TeamDataList> rawData, List<PlayerElement> playersData);
         List<LeagueSummary> SummarizeData(List<LeagueSummary> result);
 
         List<LeagueSummary> PivotData(List<TeamDataList> rawData);

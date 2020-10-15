@@ -214,6 +214,85 @@ namespace DataFeed.Services
                     dayTeam.Remove(dayTeamData.Mcapt);
                     dayTeam.Remove(dayTeamData.Vcapt);
 
+                    //leagueSummary.P1 = playersData.First(x => x.Id == dayTeam[0]).Name;
+                    //leagueSummary.P2 = playersData.First(x => x.Id == dayTeam[1]).Name;
+                    //leagueSummary.P3 = playersData.First(x => x.Id == dayTeam[2]).Name;
+                    //leagueSummary.P4 = playersData.First(x => x.Id == dayTeam[3]).Name;
+                    //leagueSummary.P5 = playersData.First(x => x.Id == dayTeam[4]).Name;
+                    //leagueSummary.P6 = playersData.First(x => x.Id == dayTeam[5]).Name;
+                    //leagueSummary.P7 = playersData.First(x => x.Id == dayTeam[6]).Name;
+                    //leagueSummary.P8 = playersData.First(x => x.Id == dayTeam[7]).Name;
+                    //leagueSummary.P9 = playersData.First(x => x.Id == dayTeam[8]).Name;
+
+                    foreach (var item in dayTeam)
+                    {
+                        leagueSummary.DayPoints += playersData.First(x => x.Id == item).GamedayPoints;
+                    }
+
+                    leagueSummary.DayPoints += playersData.First(x => x.Id == dayTeamData.Mcapt).GamedayPoints * 2;
+
+                    var test = playersData.First(x => x.Id == dayTeamData.Vcapt).GamedayPoints * 1.5;
+                    leagueSummary.DayPoints = leagueSummary.DayPoints + Convert.ToDecimal(test);
+                }
+
+                result.Add(leagueSummary);
+            }
+
+            return result;
+        }
+
+        public List<LeagueSummary> AnalyzeDataAdminWithPlayers(List<TeamDataList> rawData, List<PlayerElement> playersData)
+        {
+            // halfway matchday = 24
+            var todayMatchday = GetTodayMatchday();
+
+            List<LeagueSummary> result = new List<LeagueSummary>();
+            foreach (var data in rawData)
+            {
+                Team dayTeamData = data.Teams.Exists(x => x.Gdid == todayMatchday)
+                    ? data.Teams.FirstOrDefault(x => x.Gdid == todayMatchday)
+                    : null;
+
+                var leagueSummary = new LeagueSummary
+                {
+                    TeamId = data.TeamId,
+                    TeamName = data.TeamName,
+                    Rank = data.Rank,
+                    Transfers = data.Teams.Sum(x => x.SubsUsed),
+                    Points = data.Gdpts.Sum(x => Convert.ToDecimal(x.Gdpts)),
+
+                    DayPoints = data.Gdpts.Exists(x => x.Gdid == todayMatchday)
+                        ? Convert.ToDecimal(data.Gdpts.FirstOrDefault(x => x.Gdid == todayMatchday)?.Gdpts)
+                        : 0,
+
+                    DayTransfers = data.Teams.Exists(x => x.Gdid == todayMatchday)
+                        ? data.Teams.FirstOrDefault(x => x.Gdid == todayMatchday).SubsUsed
+                        : 0,
+
+                    YesterdayPoints = data.Gdpts.Exists(x => x.Gdid == todayMatchday - 1)
+                    ? Convert.ToDecimal(data.Gdpts.FirstOrDefault(x => x.Gdid == todayMatchday - 1)?.Gdpts)
+                    : 0,
+
+                    YesterdayTransfers = data.Teams.Exists(x => x.Gdid == todayMatchday - 1)
+                        ? data.Teams.FirstOrDefault(x => x.Gdid == todayMatchday - 1).SubsUsed
+                        : 0,
+
+                    Captain = data.Teams.Exists(x => x.Gdid == todayMatchday)
+                        ? data.Teams.FirstOrDefault(x => x.Gdid == todayMatchday).CaptainName
+                        : string.Empty,
+
+                    ViceCaptain = data.Teams.Exists(x => x.Gdid == todayMatchday)
+                        ? data.Teams.FirstOrDefault(x => x.Gdid == todayMatchday).ViceCaptainName
+                        : string.Empty
+
+                };
+
+                if (dayTeamData != null && playersData != null)
+                {
+                    List<long> dayTeam = dayTeamData.Plyid;
+                    dayTeam.Remove(dayTeamData.Mcapt);
+                    dayTeam.Remove(dayTeamData.Vcapt);
+
                     leagueSummary.P1 = playersData.First(x => x.Id == dayTeam[0]).Name;
                     leagueSummary.P2 = playersData.First(x => x.Id == dayTeam[1]).Name;
                     leagueSummary.P3 = playersData.First(x => x.Id == dayTeam[2]).Name;
@@ -240,7 +319,6 @@ namespace DataFeed.Services
 
             return result;
         }
-
         public List<LeagueSummary> SummarizeData(List<LeagueSummary> result)
         {
 
