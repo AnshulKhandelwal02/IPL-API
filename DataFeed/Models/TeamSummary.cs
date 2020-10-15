@@ -41,6 +41,15 @@ namespace DataFeed.Models
         public long DayTransfersMatchNumber { get; set; }
         public decimal YesterdayPoints { get; set; }
         public long YesterdayTransfers { get; set; }
+        public string P1 { get; set; } = string.Empty;
+        public string P2 { get; set; } = string.Empty;
+        public string P3 { get; set; } = string.Empty;
+        public string P4 { get; set; } = string.Empty;
+        public string P5 { get; set; } = string.Empty;
+        public string P6 { get; set; } = string.Empty;
+        public string P7 { get; set; } = string.Empty;
+        public string P8 { get; set; } = string.Empty;
+        public string P9 { get; set; } = string.Empty;
     }
 
 }

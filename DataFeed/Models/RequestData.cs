@@ -26,5 +26,20 @@ namespace DataFeed.Models
         public Dictionary<string, string> Headers { get; set; }
         public string TransferListUrl { get; set; }
         public string LeaderboardUrl { get; set; }
+
+        public string PlayerListUrl { get; set; } =
+            "https://fantasy.iplt20.com/season/services/feed/players?lang=en&tourgamedayId={0}&teamgamedayId={1}&announcedVersion=10142020182314";
+
+        public long MatchDay
+        {
+            get
+            {
+                var halfway = new DateTime(2020, 10, 12);
+                var todayDate = DateTime.Today.Date;
+
+                // halfway matchday = 24
+                return 24 + Convert.ToInt64((todayDate - halfway).TotalDays);
+            }
+        }
     }
 }

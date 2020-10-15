@@ -5,6 +5,7 @@ using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Net.Http;
+using System.Reflection;
 using System.Runtime.InteropServices.ComTypes;
 using System.Text;
 using System.Threading.Tasks;
@@ -38,7 +39,6 @@ namespace DataFeed.Services
                     Console.WriteLine("Getting data for Team Id = {0}", team.Temid.ToString());
 
                     var teamResultsList = new List<Transfers>();
-                    var teamResults = new Transfers();
                     var teamDataList = new TeamDataList();
 
                     teamDataList.TeamId = team.Temid;
@@ -125,11 +125,8 @@ namespace DataFeed.Services
 
         public List<LeagueSummary> AnalyzeData(List<TeamDataList> rawData)
         {
-            var halfway = new DateTime(2020, 10, 12);
-            var todayDate = DateTime.Today.Date;
-
             // halfway matchday = 24
-            var todayMatchday = 24 + Convert.ToInt64((todayDate - halfway).TotalDays);
+            var todayMatchday = GetTodayMatchday();
 
             List<LeagueSummary> result = new List<LeagueSummary>();
             foreach (var data in rawData)
@@ -156,28 +153,87 @@ namespace DataFeed.Services
 
                     YesterdayTransfers = data.Teams.Exists(x => x.Gdid == todayMatchday - 1)
                         ? data.Teams.FirstOrDefault(x => x.Gdid == todayMatchday - 1).SubsUsed
+                        : 0
+                };
+
+                result.Add(leagueSummary);
+            }
+
+            return result;
+        }
+
+        public List<LeagueSummary> AnalyzeDataAdmin(List<TeamDataList> rawData, List<PlayerElement> playersData)
+        {
+            // halfway matchday = 24
+            var todayMatchday = GetTodayMatchday();
+
+            List<LeagueSummary> result = new List<LeagueSummary>();
+            foreach (var data in rawData)
+            {
+                Team dayTeamData = data.Teams.Exists(x => x.Gdid == todayMatchday)
+                    ? data.Teams.FirstOrDefault(x => x.Gdid == todayMatchday)
+                    : null;
+
+                var leagueSummary = new LeagueSummary
+                {
+                    TeamId = data.TeamId,
+                    TeamName = data.TeamName,
+                    Rank = data.Rank,
+                    Transfers = data.Teams.Sum(x => x.SubsUsed),
+                    Points = data.Gdpts.Sum(x => Convert.ToDecimal(x.Gdpts)),
+
+                    DayPoints = data.Gdpts.Exists(x => x.Gdid == todayMatchday)
+                        ? Convert.ToDecimal(data.Gdpts.FirstOrDefault(x => x.Gdid == todayMatchday)?.Gdpts)
+                        : 0,
+
+                    DayTransfers = data.Teams.Exists(x => x.Gdid == todayMatchday)
+                        ? data.Teams.FirstOrDefault(x => x.Gdid == todayMatchday).SubsUsed
+                        : 0,
+
+                    YesterdayPoints = data.Gdpts.Exists(x => x.Gdid == todayMatchday - 1)
+                    ? Convert.ToDecimal(data.Gdpts.FirstOrDefault(x => x.Gdid == todayMatchday - 1)?.Gdpts)
+                    : 0,
+
+                    YesterdayTransfers = data.Teams.Exists(x => x.Gdid == todayMatchday - 1)
+                        ? data.Teams.FirstOrDefault(x => x.Gdid == todayMatchday - 1).SubsUsed
                         : 0,
 
                     Captain = data.Teams.Exists(x => x.Gdid == todayMatchday)
                         ? data.Teams.FirstOrDefault(x => x.Gdid == todayMatchday).CaptainName
-                        : "NOT UPDATED",
+                        : string.Empty,
 
                     ViceCaptain = data.Teams.Exists(x => x.Gdid == todayMatchday)
                         ? data.Teams.FirstOrDefault(x => x.Gdid == todayMatchday).ViceCaptainName
-                        : "NOT UPDATED"
+                        : string.Empty
 
-                    //DayPoints = Convert.ToDecimal(data.Gdpts.FirstOrDefault(x => x.Gdid == (data.Gdpts.Max(y => y.Gdid)))?.Gdpts),
-                    //DayTransfers = data.Teams.FirstOrDefault(x => x.Gdid == data.Teams.Max(y => y.Gdid)).SubsUsed,
-
-                    //DayPoints = Convert.ToDecimal(dayPoints?.Gdpts),
-                    //DayTransfers = dayTeam?.SubsUsed ?? 0,
-
-                    //YesterdayPoints = Convert.ToDecimal(data.Gdpts.FirstOrDefault(x => x.Gdid == todayMatchday - 1)?.Gdpts),
-                    //YesterdayTransfers = data.Teams.FirstOrDefault(x => x.Gdid == todayMatchday - 1).SubsUsed
-
-                    //DayPointsMatchNumber = data.Gdpts.Max(y => y.Gdid),
-                    //DayTransfersMatchNumber = data.Teams.Max(y => y.Gdid)
                 };
+
+                if (dayTeamData != null && playersData != null)
+                {
+                    List<long> dayTeam = dayTeamData.Plyid;
+                    dayTeam.Remove(dayTeamData.Mcapt);
+                    dayTeam.Remove(dayTeamData.Vcapt);
+
+                    leagueSummary.P1 = playersData.First(x => x.Id == dayTeam[0]).Name;
+                    leagueSummary.P2 = playersData.First(x => x.Id == dayTeam[1]).Name;
+                    leagueSummary.P3 = playersData.First(x => x.Id == dayTeam[2]).Name;
+                    leagueSummary.P4 = playersData.First(x => x.Id == dayTeam[3]).Name;
+                    leagueSummary.P5 = playersData.First(x => x.Id == dayTeam[4]).Name;
+                    leagueSummary.P6 = playersData.First(x => x.Id == dayTeam[5]).Name;
+                    leagueSummary.P7 = playersData.First(x => x.Id == dayTeam[6]).Name;
+                    leagueSummary.P8 = playersData.First(x => x.Id == dayTeam[7]).Name;
+                    leagueSummary.P9 = playersData.First(x => x.Id == dayTeam[8]).Name;
+
+                    foreach (var item in dayTeam)
+                    {
+                        leagueSummary.DayPoints += playersData.First(x => x.Id == item).GamedayPoints;
+                    }
+
+                    leagueSummary.DayPoints += playersData.First(x => x.Id == dayTeamData.Mcapt).GamedayPoints * 2;
+                    var test = playersData.First(x => x.Id == dayTeamData.Vcapt).GamedayPoints * 1.5;
+
+                    leagueSummary.DayPoints = leagueSummary.DayPoints + Convert.ToDecimal(test);
+                }
 
                 result.Add(leagueSummary);
             }
@@ -218,7 +274,17 @@ namespace DataFeed.Services
                 YesterdayTransfers = x.YesterdayTransfers,
                 YesterdayPoints = x.YesterdayPoints,
                 Captain = x.Captain,
-                ViceCaptain = x.ViceCaptain
+                ViceCaptain = x.ViceCaptain,
+                P1 = x.P1,
+                P2 = x.P2,
+                P3 = x.P3,
+                P4 = x.P4,
+                P5 = x.P5,
+                P6 = x.P6,
+                P7 = x.P7,
+                P8 = x.P8,
+                P9 = x.P9
+
             }).ToList();
 
             //return newResult;
@@ -274,6 +340,31 @@ namespace DataFeed.Services
             }
         }
 
+        public async Task<List<PlayerElement>> GetPlayerList(RequestData request)
+        {
+            try
+            {
+                HttpClient client = new HttpClient();
+                foreach (var header in request.Headers)
+                {
+                    client.DefaultRequestHeaders.Add(header.Key, header.Value);
+                }
+
+                request.PlayerListUrl = string.Format(request.PlayerListUrl, request.MatchDay, request.MatchDay);
+
+                var resultJSON = (client.GetAsync(request.PlayerListUrl).Result).Content.ReadAsStringAsync().Result;
+
+                var result = JsonConvert.DeserializeObject<Player>(resultJSON);
+
+                return result?.Data?.Value.Players;
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine(e);
+                throw;
+            }
+        }
+
         public void ExportToCsv(DataTable dt)
         {
             StringBuilder sb = new StringBuilder();
@@ -291,16 +382,15 @@ namespace DataFeed.Services
             File.WriteAllText("test.csv", sb.ToString());
         }
 
-        public void CalculationLogic()
+        public long GetTodayMatchday()
         {
-            DateTime halfway = new DateTime(2020,10,12);
-            DateTime todayDate = DateTime.Today.Date;
+            var halfway = new DateTime(2020, 10, 12);
+            var todayDate = DateTime.Today.Date;
 
-            var halfwayMatchday = 24;
+            // halfway matchday = 24
+            var todayMatchday = 24 + Convert.ToInt64((todayDate - halfway).TotalDays);
 
-            var todayMatchday = halfwayMatchday + (todayDate - halfway).TotalDays;
+            return todayMatchday;
         }
-
-        
     }
 }
