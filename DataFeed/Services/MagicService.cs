@@ -45,7 +45,18 @@ namespace DataFeed.Services
                     teamDataList.TeamName = team.Temname;
                     teamDataList.Rank = team.Rank;
 
-                    Parallel.ForEach(request.DayList, new ParallelOptions() { MaxDegreeOfParallelism = 6 }, index =>
+                    //foreach (var day in request.DayList)
+                    //{
+                    //    var response = client.GetAsync(string.Format(request.TransferListUrl, day, team.Temid, team.Usrscoid)).Result;
+
+                    //    var contents = response.Content.ReadAsStringAsync().Result;
+
+                    //    var result = JsonConvert.DeserializeObject<Transfers>(contents);
+
+                    //    teamResultsList.Add(result);
+                    //}
+
+                    Parallel.ForEach(request.DayList, new ParallelOptions() { MaxDegreeOfParallelism = 5 }, index =>
                     {
                         var response = client.GetAsync(string.Format(request.TransferListUrl, index, team.Temid, team.Usrscoid)).Result;
 
@@ -319,6 +330,7 @@ namespace DataFeed.Services
 
             return result;
         }
+        
         public List<LeagueSummary> SummarizeData(List<LeagueSummary> result)
         {
 
